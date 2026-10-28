@@ -1,0 +1,56 @@
+{
+  "data": {
+    "lifters": 3000,
+    "sessions": 39000,
+    "train_sessions": 31200,
+    "test_sessions": 7800,
+    "class_balance": [
+      0.255,
+      0.293,
+      0.452
+    ]
+  },
+  "regression": {
+    "static_epley": {
+      "mae_kg": 9.274330170036137,
+      "rmse_kg": 10.720563098439484,
+      "mae_pct_1rm": 8.220778644010666,
+      "r2_relative": -6.089656716586883
+    },
+    "1rm_times_k": {
+      "mae_kg": 2.955279205477377,
+      "rmse_kg": 3.9069665805597826,
+      "mae_pct_1rm": 2.6738895620441228,
+      "r2_relative": -0.0009879749515471214
+    },
+    "linear_regression": {
+      "mae_kg": 1.9822494590086988,
+      "rmse_kg": 2.608469293716679,
+      "mae_pct_1rm": 1.878087617541916,
+      "r2_relative": 0.4716251445222359
+    },
+    "mlp_regressor": {
+      "mae_kg": 1.8998861189502927,
+      "rmse_kg": 2.493279803435009,
+      "mae_pct_1rm": 1.7863694047650984,
+      "r2_relative": 0.5305622637763491
+    },
+    "noise_floor_mae_kg": 0.7978845608028654,
+    "fitted_k": 0.7296792557945693,
+    "mlp_epochs": 46,
+    "mlp_final_training_loss": 2.9420222390340705
+  },
+  "classification": {
+    "majority_class_accuracy": 0.46076923076923076,
+    "feature_rule_accuracy": 0.7630769230769231,
+    "feature_rule_macro_f1": 0.7742892359972199,
+    "mlp_accuracy": 0.8642307692307692,
+    "mlp_macro_f1": 0.8689327468749392,
+    "mlp_recall_per_class": {
+      "Under-Stimulated": 0.971,
+      "Optimal Hypertrophy": 0.852,
+      "Excessive Fatigue / Junk Volume": 0.814
+    },
+    "mlp_epochs": 87
+  }
+}

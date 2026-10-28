@@ -1,0 +1,63 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="480" fill="#ffffff"/>
+
+  <!-- Client -->
+  <rect x="20" y="170" width="180" height="120" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+  <text x="110" y="205" text-anchor="middle" font-size="18" font-weight="700" fill="#0c4a6e">Next.js Client</text>
+  <text x="110" y="230" text-anchor="middle" font-size="14" fill="#0c4a6e">TypeScript (strict)</text>
+  <text x="110" y="250" text-anchor="middle" font-size="14" fill="#0c4a6e">Tailwind CSS</text>
+  <text x="110" y="270" text-anchor="middle" font-size="14" fill="#0c4a6e">Recoil form state</text>
+
+  <!-- Postgres (planned) -->
+  <rect x="20" y="360" width="180" height="70" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="110" y="392" text-anchor="middle" font-size="16" font-weight="700" fill="#475569">PostgreSQL + Prisma</text>
+  <text x="110" y="413" text-anchor="middle" font-size="13" fill="#475569">30-day history (planned)</text>
+  <line x1="110" y1="290" x2="110" y2="360" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5"/>
+
+  <!-- Server container -->
+  <rect x="330" y="50" width="840" height="400" rx="14" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="350" y="80" font-size="18" font-weight="700" fill="#1e293b">FastAPI Inference Microservice (Uvicorn, :8000)</text>
+
+  <!-- Pydantic -->
+  <rect x="360" y="205" width="170" height="90" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="445" y="240" text-anchor="middle" font-size="16" font-weight="700" fill="#78350f">Pydantic</text>
+  <text x="445" y="262" text-anchor="middle" font-size="13" fill="#78350f">WorkoutPayload</text>
+  <text x="445" y="280" text-anchor="middle" font-size="13" fill="#78350f">validation</text>
+
+  <!-- Scaler -->
+  <rect x="580" y="205" width="150" height="90" rx="10" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"/>
+  <text x="655" y="240" text-anchor="middle" font-size="16" font-weight="700" fill="#4c1d95">StandardScaler</text>
+  <text x="655" y="262" text-anchor="middle" font-size="13" fill="#4c1d95">7 features</text>
+  <text x="655" y="280" text-anchor="middle" font-size="13" fill="#4c1d95">scaler.pkl</text>
+
+  <!-- Regressor -->
+  <rect x="800" y="110" width="340" height="100" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="970" y="142" text-anchor="middle" font-size="16" font-weight="700" fill="#14532d">MLPRegressor (64, 32)</text>
+  <text x="970" y="164" text-anchor="middle" font-size="13" fill="#14532d">ReLU, Adam, MSE loss</text>
+  <text x="970" y="186" text-anchor="middle" font-size="14" font-weight="600" fill="#14532d">&#8594; prescribed_load_kg</text>
+
+  <!-- Classifier -->
+  <rect x="800" y="290" width="340" height="100" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="970" y="322" text-anchor="middle" font-size="16" font-weight="700" fill="#14532d">MLPClassifier (32, 16)</text>
+  <text x="970" y="344" text-anchor="middle" font-size="13" fill="#14532d">ReLU, Adam, cross-entropy loss</text>
+  <text x="970" y="366" text-anchor="middle" font-size="14" font-weight="600" fill="#14532d">&#8594; workout score (0 / 1 / 2)</text>
+
+  <!-- Internal arrows -->
+  <line x1="530" y1="250" x2="580" y2="250" stroke="#334155" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="730" y1="240" x2="800" y2="165" stroke="#334155" stroke-width="2.5" marker-end="url(#a)"/>
+  <line x1="730" y1="260" x2="800" y2="335" stroke="#334155" stroke-width="2.5" marker-end="url(#a)"/>
+
+  <!-- Arrows client <-> server -->
+  <line x1="200" y1="225" x2="358" y2="225" stroke="#334155" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="265" y="213" text-anchor="middle" font-size="13" fill="#334155">POST /predict</text>
+  <line x1="358" y1="262" x2="200" y2="262" stroke="#334155" stroke-width="2.5" marker-end="url(#a)"/>
+  <text x="265" y="284" text-anchor="middle" font-size="13" fill="#334155">JSON result</text>
+  <!-- Startup note -->
+  <text x="350" y="425" font-size="13" fill="#475569">Startup (lifespan): scaler.pkl, mlp_regressor.pkl, mlp_classifier.pkl loaded once into memory via Joblib</text>
+</svg>
+

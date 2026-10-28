@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int          @id @default(autoincrement())
+  email              String       @unique
+  sexBinary          Int // 1 = male, 0 = female
+  age                Int
+  bodyweightKg       Float
+  benchBaseline1rmKg Float
+  logs               WorkoutLog[]
+}
+
+model WorkoutLog {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  date            DateTime
+  exercise        String // "Bench Press" | "Incline Bench Press"
+  sessionVolumeKg Float
+  meanRpe         Float
+  fatigueDropOff  Float // % rep drop, set 1 -> final set
+
+  @@index([userId, date])
+}
