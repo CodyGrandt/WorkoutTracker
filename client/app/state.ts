@@ -1,27 +1,40 @@
 import { atom, selector } from "recoil";
 
+// The UI works in pounds; the model was trained in kilograms (OpenPowerlifting), so
+// payloadState converts to kg before the request and the page converts the result back.
+export const KG_PER_LB = 0.45359237;
+export const kgToLb = (kg: number): number => kg / KG_PER_LB;
+
 export interface LifterProfile {
-  bodyweight_kg: number;
+  bodyweight_lb: number;
   age: number;
   sex_binary: 0 | 1;
-  bench_1rm_baseline: number;
+  bench_1rm_lb: number;
 }
 
 export interface WorkoutSet {
   id: number;
-  weightKg: number;
+  weightLb: number;
   reps: number;
   rpe: number;
 }
 
 export interface SessionFeatures {
-  session_volume_kg: number;
+  session_volume_lb: number;
   mean_rpe: number;
   fatigue_drop_off: number;
 }
 
-// Mirrors WorkoutPayload in server/main.py
-export type WorkoutPayload = LifterProfile & SessionFeatures;
+// Mirrors WorkoutPayload in server/main.py (kilograms)
+export interface WorkoutPayload {
+  bodyweight_kg: number;
+  age: number;
+  sex_binary: 0 | 1;
+  bench_1rm_baseline: number;
+  session_volume_kg: number;
+  mean_rpe: number;
+  fatigue_drop_off: number;
+}
 
 // Mirrors PredictResponse in server/main.py
 export interface PredictResponse {
@@ -42,34 +55,34 @@ interface FieldSpec<K> {
   max: number;
 }
 
-// Ranges mirror the Pydantic bounds in server/main.py (the model's training domain).
+// Ranges mirror the Pydantic bounds in server/main.py (the model's training domain), converted to lb.
 export const PROFILE_FIELDS: FieldSpec<NumericProfileField>[] = [
-  { key: "bodyweight_kg", label: "Bodyweight (kg)", step: 0.5, min: 40, max: 200 },
+  { key: "bodyweight_lb", label: "Bodyweight (lb)", step: 1, min: 89, max: 440 },
   { key: "age", label: "Age", step: 1, min: 16, max: 80 },
-  { key: "bench_1rm_baseline", label: "Bench 1RM baseline (kg)", step: 2.5, min: 20, max: 330 },
+  { key: "bench_1rm_lb", label: "Bench 1RM baseline (lb)", step: 5, min: 45, max: 725 },
 ];
 
 export const SET_FIELDS: FieldSpec<NumericSetField>[] = [
-  { key: "weightKg", label: "Weight (kg)", step: 2.5, min: 1, max: 330 },
+  { key: "weightLb", label: "Weight (lb)", step: 5, min: 2.5, max: 725 },
   { key: "reps", label: "Reps", step: 1, min: 1, max: 20 },
   { key: "rpe", label: "RPE", step: 0.5, min: 6, max: 10 },
 ];
 
-export const MAX_SESSION_VOLUME_KG = 10000;
+export const MAX_SESSION_VOLUME_LB = 22000; // server cap is 10,000 kg
 export const MAX_RELATIVE_VOLUME = 50;
 
 export const profileState = atom<LifterProfile>({
   key: "profile",
-  default: { bodyweight_kg: 85, age: 27, sex_binary: 1, bench_1rm_baseline: 120 },
+  default: { bodyweight_lb: 185, age: 27, sex_binary: 1, bench_1rm_lb: 265 },
 });
 
 export const setsState = atom<WorkoutSet[]>({
   key: "sets",
   default: [
-    { id: 1, weightKg: 80, reps: 8, rpe: 7.5 },
-    { id: 2, weightKg: 80, reps: 8, rpe: 8 },
-    { id: 3, weightKg: 80, reps: 7, rpe: 8.5 },
-    { id: 4, weightKg: 80, reps: 6, rpe: 9 },
+    { id: 1, weightLb: 175, reps: 8, rpe: 7.5 },
+    { id: 2, weightLb: 175, reps: 8, rpe: 8 },
+    { id: 3, weightLb: 175, reps: 7, rpe: 8.5 },
+    { id: 4, weightLb: 175, reps: 6, rpe: 9 },
   ],
 });
 
@@ -79,13 +92,13 @@ export const sessionFeaturesState = selector<SessionFeatures>({
   key: "sessionFeatures",
   get: ({ get }) => {
     const sets = get(setsState);
-    const volume = sets.reduce((sum, s) => sum + s.weightKg * s.reps, 0);
+    const volume = sets.reduce((sum, s) => sum + s.weightLb * s.reps, 0);
     const meanRpe = sets.reduce((sum, s) => sum + s.rpe, 0) / sets.length;
     const first = sets[0].reps;
     const last = sets[sets.length - 1].reps;
     const dropOff = Math.max(0, ((first - last) / first) * 100);
     return {
-      session_volume_kg: volume,
+      session_volume_lb: volume,
       mean_rpe: Math.round(meanRpe * 100) / 100,
       fatigue_drop_off: Math.round(dropOff * 10) / 10,
     };
@@ -94,7 +107,19 @@ export const sessionFeaturesState = selector<SessionFeatures>({
 
 export const payloadState = selector<WorkoutPayload>({
   key: "payload",
-  get: ({ get }) => ({ ...get(profileState), ...get(sessionFeaturesState) }),
+  get: ({ get }) => {
+    const p = get(profileState);
+    const f = get(sessionFeaturesState);
+    return {
+      bodyweight_kg: p.bodyweight_lb * KG_PER_LB,
+      age: p.age,
+      sex_binary: p.sex_binary,
+      bench_1rm_baseline: p.bench_1rm_lb * KG_PER_LB,
+      session_volume_kg: f.session_volume_lb * KG_PER_LB,
+      mean_rpe: f.mean_rpe,
+      fatigue_drop_off: f.fatigue_drop_off,
+    };
+  },
 });
 
 const outOfRange = (value: number, min: number, max: number): boolean =>
@@ -117,10 +142,10 @@ export const validationErrorsState = selector<string[]>({
     });
     if (errors.length > 0) return errors;
 
-    const { session_volume_kg } = get(sessionFeaturesState);
-    if (session_volume_kg > MAX_SESSION_VOLUME_KG) {
-      errors.push(`Session volume must be at most ${MAX_SESSION_VOLUME_KG.toLocaleString("en-US")} kg.`);
-    } else if (session_volume_kg / profile.bench_1rm_baseline > MAX_RELATIVE_VOLUME) {
+    const { session_volume_lb } = get(sessionFeaturesState);
+    if (session_volume_lb > MAX_SESSION_VOLUME_LB) {
+      errors.push(`Session volume must be at most ${MAX_SESSION_VOLUME_LB.toLocaleString("en-US")} lb.`);
+    } else if (session_volume_lb / profile.bench_1rm_lb > MAX_RELATIVE_VOLUME) {
       errors.push(`Session volume must be at most ${MAX_RELATIVE_VOLUME}× your bench 1RM.`);
     }
     return errors;

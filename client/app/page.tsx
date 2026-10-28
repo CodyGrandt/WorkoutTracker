@@ -7,6 +7,7 @@ import {
   type PredictResponse,
   PROFILE_FIELDS,
   SET_FIELDS,
+  kgToLb,
   payloadState,
   profileState,
   sessionFeaturesState,
@@ -153,7 +154,7 @@ function SetLogger() {
 function DerivedFeatures() {
   const f = useRecoilValue(sessionFeaturesState);
   const items = [
-    { label: "Session volume", value: formatFeature(f.session_volume_kg, " kg") },
+    { label: "Session volume", value: formatFeature(f.session_volume_lb, " lb") },
     { label: "Mean RPE", value: Number.isFinite(f.mean_rpe) ? f.mean_rpe.toFixed(2) : "—" },
     { label: "Rep drop-off (set 1 → last)", value: formatFeature(f.fatigue_drop_off, "%") },
   ];
@@ -243,7 +244,7 @@ export default function Home() {
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className={CARD_CLASS}>
             <p className="text-xs uppercase text-slate-400">MLPRegressor: next-session target</p>
-            <p className="mt-1 text-3xl font-bold">{result.prescribed_load_kg} kg</p>
+            <p className="mt-1 text-3xl font-bold">{kgToLb(result.prescribed_load_kg).toFixed(1)} lb</p>
             <p className="text-xs text-slate-400">top set of 5 reps @ RPE 8</p>
           </div>
           <div className={CARD_CLASS}>
